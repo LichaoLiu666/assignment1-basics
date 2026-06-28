@@ -1,7 +1,4 @@
-# from cs336_basics.pretokenization_example import find_chunk_boundaries
 import regex as re
-import json
-from functools import lru_cache
 
 VOCAB_PATH = "/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/gpt2_vocab.json"
 MERGES_PATH = "/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/gpt2_merges.txt"
@@ -82,11 +79,8 @@ class tokenizer:
         return out
 
     def encode_iterable(self, iterable):
-        results = []
         for line in iterable:
-            result = self.encode(line)
-            results += result
-        return results
+            yield from self.encode(line)
 
     def decode(self, ids):
         out = []
