@@ -1,8 +1,6 @@
 import torch
-from torch.fft import Tensor
 import torch.nn as nn
 from einops import einsum
-import math
 
 
 class linear(nn.Module):
