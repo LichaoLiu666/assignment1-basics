@@ -3,15 +3,14 @@ from multiprocessing import Pool
 import regex as re
 from collections import Counter, defaultdict
 import time
-import heapq
 
 
 def process_chunk(chunk_cleaned: str) -> dict[tuple[str], int]:
-    PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+    GPT2_PRETOKENIZE_PATTERN = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
 
     # for special_token in special_tokens:
     #     chunk_cleaned = re.sub(special_token,"",chunk)
-    pre_tokenized_chunk_cleaned = re.findall(PAT, chunk_cleaned)
+    pre_tokenized_chunk_cleaned = re.findall(GPT2_PRETOKENIZE_PATTERN, chunk_cleaned)
     return Counter(pre_tokenized_chunk_cleaned)
 
 
@@ -39,7 +38,7 @@ def train_bpe(
     start = time.time()
     with Pool(processes=num_processes) as pool:
         results = pool.map(process_chunk, chunk_list)
-    # print("preprocessing time:" + str(time.time() - start))
+    print("preprocessing time:" + str(time.time() - start))
     for result in results:
         for key, value in result.items():
             # new_key = tuple(bytes([byte]) for element in key for byte in element.encode("utf-8"))
@@ -110,7 +109,7 @@ def train_bpe(
                 del pair_word_dict[merged_element]
         for oldKey, newKey in tmpDict.items():
             word_tuple_dict[newKey] = word_tuple_dict.pop(oldKey)
-
+    print("merge time:" + str(time.time() - start))
     return vocab, merges
 
 
@@ -118,8 +117,8 @@ if __name__ == "__main__":
     print(
         train_bpe(
             # input_path="/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/corpus.en",
-            input_path="/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/tinystories_sample_5M.txt",
-            vocab_size=300,
+            input_path="/Users/lichaoliu/Documents/cs336/assignment1-basics/data/TinyStoriesV2-GPT4-valid.txt",
+            vocab_size=1000,
             special_tokens=["<|endoftext|>"],
         )
     )

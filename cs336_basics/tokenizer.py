@@ -34,8 +34,10 @@ class tokenizer:
     def from_files(cls, vocab_filepath, merges_filepath, special_tokens=None):
         import pickle
 
-        vocab = pickle.load(vocab_filepath)
-        merges = pickle.load(merges_filepath)
+        with open(vocab_filepath, "rb") as f1:
+            vocab = pickle.load(f1)
+        with open(merges_filepath, "rb") as f2:
+            merges = pickle.load(f2)
         return cls(vocab, merges, special_tokens)
 
     def encode(self, text):
@@ -89,60 +91,3 @@ class tokenizer:
             out.append(byte)
         text = b"".join(out).decode("utf-8", errors="replace")
         return text
-
-
-# vocab_path = "/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/gpt2_vocab.json"
-# merges_path = "/Users/lichaoliu/Documents/cs336/assignment1-basics/tests/fixtures/gpt2_merges.txt"
-
-
-# @lru_cache
-# def gpt2_bytes_to_unicode() -> dict[int, str]:
-#     bs = list(range(ord("!"), ord("~") + 1)) + list(range(ord("¡"), ord("¬") + 1)) + list(range(ord("®"), ord("ÿ") + 1))
-#     cs = bs[:]
-#     n = 0
-#     for b in range(2**8):
-#         if b not in bs:
-#             # If this integer isn't in our list of visually-representable
-#             # charcters, then map it to the next nice character (offset by 256)
-#             bs.append(b)
-#             cs.append(2**8 + n)
-#             n += 1
-#     characters = [chr(n) for n in cs]
-#     d = dict(zip(bs, characters))
-#     return d
-
-
-# gpt2_byte_decoder = {v: k for k, v in gpt2_bytes_to_unicode().items()}
-# with open(vocab_path) as vocab_f:
-#     gpt2_vocab = json.load(vocab_f)
-# gpt2_bpe_merges = []
-# with open(merges_path) as f:
-#     for line in f:
-#         cleaned_line = line.rstrip()
-#         if cleaned_line and len(cleaned_line.split(" ")) == 2:
-#             gpt2_bpe_merges.append(tuple(cleaned_line.split(" ")))
-# vocab = {
-#     gpt2_vocab_index: bytes([gpt2_byte_decoder[token] for token in gpt2_vocab_item])
-#     for gpt2_vocab_item, gpt2_vocab_index in gpt2_vocab.items()
-# }
-# merges = [
-#     (
-#         bytes([gpt2_byte_decoder[token] for token in merge_token_1]),
-#         bytes([gpt2_byte_decoder[token] for token in merge_token_2]),
-#     )
-#     for merge_token_1, merge_token_2 in gpt2_bpe_merges
-# ]
-# print(merges)
-# t = tokenizer(vocab, merges)
-# text = "Héllò hôw <|endoftext|><|endoftext|> are ü? 🙃<|endoftext|>"
-# encoded_ids = t.encode(text)
-# # tokenized_string = [tokenizer.decode([x]) for x in encoded_ids]
-# print(encoded_ids)
-# decoded = [tokenizer.decode([x]) for x in encoded_ids]
-# print(decoded)
-
-
-# test_string = "Héllò hôw <|endoftext|><|endoftext|> are ü? 🙃<|endoftext|>"
-# encoded_ids = t.encode(test_string)
-# tokenized_string = [t.decode([x]) for x in encoded_ids]
-# assert tokenized_string.count("<|endoftext|>") == 3
