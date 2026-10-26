@@ -68,13 +68,13 @@ if __name__ == "__main__":
 
     EOT = "<|endoftext|>"
     tok = tokenizer.from_files(
-        "/home/lichao-liu/assignment1-basics/cs336_basics/output/tinystories_vocabs.pkl",
-        "/home/lichao-liu/assignment1-basics/cs336_basics/output/tinystories_merges.pkl",
+        "/home/lichao-liu/assignment1-basics/cs336_basics/output/owt_vocabs.pkl",
+        "/home/lichao-liu/assignment1-basics/cs336_basics/output/owt_merges.pkl",
         special_tokens=[EOT],
     )
 
     end_token_id = tok.encode(EOT)[0]
-    print(end_token_id)
+    # print(end_token_id)
 
     cfg = getConfig()
     device = torch.device(cfg.data.device)
@@ -95,11 +95,16 @@ if __name__ == "__main__":
         dtype=model_dtype,
     )
     load_checkpoint(
-        "/home/lichao-liu/assignment1-basics/runs/baseline-batch-512_20260821_050405/checkpoints/best_checkpoint.pt",
+        "/home/lichao-liu/assignment1-basics/runs/owt-contextlength512-batch128-numheads8_20260824_165139/checkpoints/best_checkpoint.pt",
         model,
     )
-    prompt = "Once upon a time,"
+    prompt = """Baseball Prospectus director of technology Harry Pavlidis took a risk when he hired Jonathan Judge.
+Pavlidis knew that, as Alan Schwarz wrote in The Numbers Game, “no corner of American culture is more precisely counted, more passionately quantified, than performances of baseball players.”
+With a few clicks here and there, you can find out that Noah Syndergaard’s fastball revolves more than 2,100 times per minute on its way to the plate, that Nelson Cruz had the game’s highest average exit velocity among qualified hitters in 2016, and myriad other tidbits that seem ripped from a video game or science fiction novel. The rising ocean of data has empowered an increasingly important actor in baseball’s culture: the analytical hobbyist.
+That empowerment comes with added scrutiny—on the measurements, but also on the people and publications behind them. With Baseball Prospectus, Pavlidis knew all about the backlash that accompanies quantitative imperfection. He also knew the site’s catching metrics needed to be reworked, and that it would take a learned mind—someone who could tackle complex statistical modeling problems—to complete the job.
+“He freaks us out.” Harry Pavlidis
+Pavlidis had a hunch that Judge “got it” based on the latter’s writing and their interaction at a site-sponsored ballpark event."""
     prompt_ids = torch.tensor(tok.encode(prompt))
-    out_ids = decode(prompt_ids, model, max_sequence_length=256, temperature=0, top_p=0.7, end_token_id=end_token_id)
+    out_ids = decode(prompt_ids, model, max_sequence_length=512, temperature=0.9, top_p=0.7, end_token_id=end_token_id)
 
     print(tok.decode(out_ids.tolist()))
